@@ -4,6 +4,7 @@ const url = 'mongodb+srv://sherasiyaperfume:sheper1234@cluster0.jcx0usm.mongodb.
 const connectionParams = {
     useUnifiedTopology: true
 }
+mongoose.set("strictQuery", false);
 mongoose.connect(url, connectionParams)
     .then(() => {
         console.log('Connected to the database ')

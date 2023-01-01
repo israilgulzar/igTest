@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 const nodemailer = require("nodemailer");
+const cors = require("cors");
 
 
 // importing file
@@ -17,6 +18,7 @@ const adminService = require("./Services/AdminServices");
 // creating app 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // listening servaer
 let port = 5000;
