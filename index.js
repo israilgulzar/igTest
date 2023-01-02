@@ -3,6 +3,7 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
+const multer = require('multer')
 const bcrypt = require('bcrypt');
 const nodemailer = require("nodemailer");
 const cors = require("cors");
@@ -27,7 +28,7 @@ app.listen(port, () => {
 })
 
 // body pareser
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: false }))
 
 // middleware
 const checkToken = async (req, res, next) => {
@@ -74,6 +75,28 @@ const verifyToken = (req, res, next) => {
         })
     })
 }
+
+const DIR = './public/';
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, DIR);
+    },
+    filename: (req, file, cb) => {
+        const fileName = file.originalname.toLowerCase().split(' ').join('-');
+        cb(null, 010101 + '-' + fileName)
+    }
+});
+var upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
+            cb(null, true);
+        } else {
+            cb(null, false);
+            return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+        }
+    }
+});
 
 
 // routes
@@ -231,7 +254,8 @@ app.post('/getProducts', checkToken, verifyToken, async (req, res) => {
     }
 
 })
-app.post('/addProduct', checkToken, verifyToken, async (req, res) => {
+// app.post('/addProduct', checkToken, verifyToken, upload.single('profileImg'), async (req, res) => {
+app.post('/addProduct', upload.single('profileImg'), async (req, res) => {
     let response = {
         msg: 'Product adding fail!.',
         status: 500,
