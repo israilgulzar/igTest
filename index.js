@@ -76,21 +76,25 @@ const verifyToken = (req, res, next) => {
     })
 }
 
-const DIR = './public/';
+const DIR = './public/images';
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, DIR);
+        var fullUrl = req.protocol + '://' + req.get('host') + DIR;
     },
     filename: (req, file, cb) => {
         const fileName = file.originalname.toLowerCase().split(' ').join('-');
-        cb(null, 010101 + '-' + fileName)
+        let fileN = Math.floor(100000000 + Math.random() * 900000000) + '_' + fileName;
+        cb(null, fileN)
+        file.Img = __dirname + '\public\images/' + fileN
     }
 });
 var upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
+        if ((file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")) {
             cb(null, true);
+            req.body.thumbImage = file.Img
         } else {
             cb(null, false);
             return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
@@ -254,13 +258,14 @@ app.post('/getProducts', checkToken, verifyToken, async (req, res) => {
     }
 
 })
-// app.post('/addProduct', checkToken, verifyToken, upload.single('profileImg'), async (req, res) => {
-app.post('/addProduct', upload.single('profileImg'), async (req, res) => {
+// app.post('/addProduct', checkToken, verifyToken, upload.single('thumb_image'), async (req, res) => {
+app.post('/addProduct', upload.single('thumbImage'), async (req, res) => {
     let response = {
         msg: 'Product adding fail!.',
         status: 500,
         ok: false
     }
+    console.log('req.body.thumbImage', req.body.thumbImage)
     try {
         if (req.body.name && req.body.name !== undefined && req.body.price && req.body.price !== undefined) {
             const data = await service.addData(req.body);
